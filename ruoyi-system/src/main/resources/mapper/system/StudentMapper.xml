@@ -5,67 +5,76 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.ruoyi.system.mapper.StudentMapper">
     
     <resultMap type="Student" id="StudentResult">
-        <result property="id"    column="id"    />
-        <result property="name"    column="name"    />
-        <result property="age"    column="age"    />
-        <result property="bj"    column="bj"    />
+        <result property="studentId"    column="student_id"    />
+        <result property="studentName"    column="student_name"    />
         <result property="gender"    column="gender"    />
+        <result property="phone"    column="phone"    />
+        <result property="email"    column="email"    />
+        <result property="classId"    column="class_id"    />
+        <result property="createTime"    column="create_time"    />
     </resultMap>
 
     <sql id="selectStudentVo">
-        select id, name, age, bj, gender from student
+        select student_id, student_name, gender, phone, email, class_id, create_time from student
     </sql>
 
     <select id="selectStudentList" parameterType="Student" resultMap="StudentResult">
         <include refid="selectStudentVo"/>
         <where>  
-            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
-            <if test="age != null "> and age = #{age}</if>
-            <if test="bj != null  and bj != ''"> and bj = #{bj}</if>
+            <if test="studentName != null  and studentName != ''"> and student_name like concat('%', #{studentName}, '%')</if>
             <if test="gender != null  and gender != ''"> and gender = #{gender}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="classId != null "> and class_id = #{classId}</if>
         </where>
     </select>
     
-    <select id="selectStudentById" parameterType="Long" resultMap="StudentResult">
+    <select id="selectStudentByStudentId" parameterType="Long" resultMap="StudentResult">
         <include refid="selectStudentVo"/>
-        where id = #{id}
+        where student_id = #{studentId}
     </select>
 
-    <insert id="insertStudent" parameterType="Student" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertStudent" parameterType="Student" useGeneratedKeys="true" keyProperty="studentId">
         insert into student
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="name != null and name != ''">name,</if>
-            <if test="age != null">age,</if>
-            <if test="bj != null">bj,</if>
+            <if test="studentName != null">student_name,</if>
             <if test="gender != null">gender,</if>
+            <if test="phone != null">phone,</if>
+            <if test="email != null">email,</if>
+            <if test="classId != null">class_id,</if>
+            <if test="createTime != null">create_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="name != null and name != ''">#{name},</if>
-            <if test="age != null">#{age},</if>
-            <if test="bj != null">#{bj},</if>
+            <if test="studentName != null">#{studentName},</if>
             <if test="gender != null">#{gender},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="email != null">#{email},</if>
+            <if test="classId != null">#{classId},</if>
+            <if test="createTime != null">#{createTime},</if>
          </trim>
     </insert>
 
     <update id="updateStudent" parameterType="Student">
         update student
         <trim prefix="SET" suffixOverrides=",">
-            <if test="name != null and name != ''">name = #{name},</if>
-            <if test="age != null">age = #{age},</if>
-            <if test="bj != null">bj = #{bj},</if>
+            <if test="studentName != null">student_name = #{studentName},</if>
             <if test="gender != null">gender = #{gender},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="classId != null">class_id = #{classId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
         </trim>
-        where id = #{id}
+        where student_id = #{studentId}
     </update>
 
-    <delete id="deleteStudentById" parameterType="Long">
-        delete from student where id = #{id}
+    <delete id="deleteStudentByStudentId" parameterType="Long">
+        delete from student where student_id = #{studentId}
     </delete>
 
-    <delete id="deleteStudentByIds" parameterType="String">
-        delete from student where id in 
-        <foreach item="id" collection="array" open="(" separator="," close=")">
-            #{id}
+    <delete id="deleteStudentByStudentIds" parameterType="String">
+        delete from student where student_id in 
+        <foreach item="studentId" collection="array" open="(" separator="," close=")">
+            #{studentId}
         </foreach>
     </delete>
 </mapper>

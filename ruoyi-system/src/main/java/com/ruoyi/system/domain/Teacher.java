@@ -6,24 +6,24 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
- * 学生管理对象 student
+ * 教师管理对象 teacher
  * 
  * @author ruoyi
  * @date 2025-09-03
  */
-public class Student extends BaseEntity
+public class Teacher extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
-    /** 学员ID */
-    private Long studentId;
+    /** 教师ID */
+    private Long teacherId;
 
-    /** 学员姓名 */
-    @Excel(name = "学员姓名")
-    private String studentName;
+    /** 教师姓名 */
+    @Excel(name = "教师姓名")
+    private String teacherName;
 
-    /** 性别，男/女 */
-    @Excel(name = "性别，男/女")
+    /** 性别 */
+    @Excel(name = "性别")
     private String gender;
 
     /** 联系电话 */
@@ -34,28 +34,46 @@ public class Student extends BaseEntity
     @Excel(name = "电子邮箱")
     private String email;
 
-    /** 班级ID */
-    @Excel(name = "班级ID")
-    private Long classId;
-
-    public void setStudentId(Long studentId) 
-    {
-        this.studentId = studentId;
+    public Long[] getPostIds() {
+        return postIds;
     }
 
-    public Long getStudentId() 
-    {
-        return studentId;
+    public void setPostIds(Long[] postIds) {
+        this.postIds = postIds;
     }
 
-    public void setStudentName(String studentName) 
-    {
-        this.studentName = studentName;
+    /** 职位id */
+    private Long[] postIds;
+
+    public String getPostNames() {
+        return postNames;
     }
 
-    public String getStudentName() 
+    public void setPostNames(String postNames) {
+        this.postNames = postNames;
+    }
+
+    /** 职位 */
+    private String postNames;
+
+    public void setTeacherId(Long teacherId) 
     {
-        return studentName;
+        this.teacherId = teacherId;
+    }
+
+    public Long getTeacherId() 
+    {
+        return teacherId;
+    }
+
+    public void setTeacherName(String teacherName) 
+    {
+        this.teacherName = teacherName;
+    }
+
+    public String getTeacherName() 
+    {
+        return teacherName;
     }
 
     public void setGender(String gender) 
@@ -88,25 +106,14 @@ public class Student extends BaseEntity
         return email;
     }
 
-    public void setClassId(Long classId) 
-    {
-        this.classId = classId;
-    }
-
-    public Long getClassId() 
-    {
-        return classId;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("studentId", getStudentId())
-            .append("studentName", getStudentName())
+            .append("teacherId", getTeacherId())
+            .append("teacherName", getTeacherName())
             .append("gender", getGender())
             .append("phone", getPhone())
             .append("email", getEmail())
-            .append("classId", getClassId())
             .append("createTime", getCreateTime())
             .toString();
     }

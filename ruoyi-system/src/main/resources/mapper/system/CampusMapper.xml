@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CampusMapper">
+    
+    <resultMap type="Campus" id="CampusResult">
+        <result property="campusId"    column="campus_id"    />
+        <result property="campusName"    column="campus_name"    />
+        <result property="address"    column="address"    />
+        <result property="phone"    column="phone"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectCampusVo">
+        select campus_id, campus_name, address, phone, create_time from campus
+    </sql>
+
+    <select id="selectCampusList" parameterType="Campus" resultMap="CampusResult">
+        <include refid="selectCampusVo"/>
+        <where>  
+            <if test="campusName != null  and campusName != ''"> and campus_name like concat('%', #{campusName}, '%')</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+        </where>
+    </select>
+    
+    <select id="selectCampusByCampusId" parameterType="Long" resultMap="CampusResult">
+        <include refid="selectCampusVo"/>
+        where campus_id = #{campusId}
+    </select>
+
+    <insert id="insertCampus" parameterType="Campus" useGeneratedKeys="true" keyProperty="campusId">
+        insert into campus
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="campusName != null">campus_name,</if>
+            <if test="address != null">address,</if>
+            <if test="phone != null">phone,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="campusName != null">#{campusName},</if>
+            <if test="address != null">#{address},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCampus" parameterType="Campus">
+        update campus
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="campusName != null">campus_name = #{campusName},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where campus_id = #{campusId}
+    </update>
+
+    <delete id="deleteCampusByCampusId" parameterType="Long">
+        delete from campus where campus_id = #{campusId}
+    </delete>
+
+    <delete id="deleteCampusByCampusIds" parameterType="String">
+        delete from campus where campus_id in 
+        <foreach item="campusId" collection="array" open="(" separator="," close=")">
+            #{campusId}
+        </foreach>
+    </delete>
+</mapper>

@@ -2,11 +2,11 @@
   <div class="app-container">
     <el-row :gutter="20">
       <splitpanes :horizontal="this.$store.getters.device === 'mobile'" class="default-theme">
-        <!--部门数据-->
+        <!--校区数据-->
         <pane size="16">
           <el-col>
             <div class="head-container">
-              <el-input v-model="deptName" placeholder="请输入部门名称" clearable size="small" prefix-icon="el-icon-search" style="margin-bottom: 20px" />
+              <el-input v-model="deptName" placeholder="请输入校区名称" clearable size="small" prefix-icon="el-icon-search" style="margin-bottom: 20px" />
             </div>
             <div class="head-container">
               <el-tree :data="deptOptions" :props="defaultProps" :expand-on-click-node="false" :filter-node-method="filterNode" ref="tree" node-key="id" default-expand-all highlight-current @node-click="handleNodeClick" />
@@ -61,7 +61,7 @@
               <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns.userId.visible" />
               <el-table-column label="用户名称" align="center" key="userName" prop="userName" v-if="columns.userName.visible" :show-overflow-tooltip="true" />
               <el-table-column label="用户昵称" align="center" key="nickName" prop="nickName" v-if="columns.nickName.visible" :show-overflow-tooltip="true" />
-              <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns.deptName.visible" :show-overflow-tooltip="true" />
+              <el-table-column label="校区" align="center" key="deptName" prop="dept.deptName" v-if="columns.deptName.visible" :show-overflow-tooltip="true" />
               <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns.phonenumber.visible" width="120" />
               <el-table-column label="状态" align="center" key="status" v-if="columns.status.visible">
                 <template slot-scope="scope">
@@ -104,8 +104,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="归属部门" prop="deptId">
-              <treeselect v-model="form.deptId" :options="enabledDeptOptions" :show-count="true" placeholder="请选择归属部门" />
+            <el-form-item label="归属校区" prop="deptId">
+              <treeselect v-model="form.deptId" :options="enabledDeptOptions" :show-count="true" placeholder="请选择归属校区" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -230,13 +230,13 @@ export default {
       userList: null,
       // 弹出层标题
       title: "",
-      // 所有部门树选项
+      // 所有校区树选项
       deptOptions: undefined,
-      // 过滤掉已禁用部门树选项
+      // 过滤掉已禁用校区树选项
       enabledDeptOptions: undefined,
       // 是否显示弹出层
       open: false,
-      // 部门名称
+      // 校区名称
       deptName: undefined,
       // 默认密码
       initPassword: undefined,
@@ -281,7 +281,7 @@ export default {
         userId: { label: '用户编号', visible: true },
         userName: { label: '用户名称', visible: true },
         nickName: { label: '用户昵称', visible: true },
-        deptName: { label: '部门', visible: true },
+        deptName: { label: '校区', visible: true },
         phonenumber: { label: '手机号码', visible: true },
         status: { label: '状态', visible: true },
         createTime: { label: '创建时间', visible: true }
@@ -318,7 +318,7 @@ export default {
     }
   },
   watch: {
-    // 根据名称筛选部门树
+    // 根据名称筛选校区树
     deptName(val) {
       this.$refs.tree.filter(val)
     }
@@ -341,14 +341,14 @@ export default {
         }
       )
     },
-    /** 查询部门下拉树结构 */
+    /** 查询校区下拉树结构 */
     getDeptTree() {
       deptTreeSelect().then(response => {
         this.deptOptions = response.data
         this.enabledDeptOptions = this.filterDisabledDept(JSON.parse(JSON.stringify(response.data)))
       })
     },
-    // 过滤禁用的部门
+    // 过滤禁用的校区
     filterDisabledDept(deptList) {
       return deptList.filter(dept => {
         if (dept.disabled) {

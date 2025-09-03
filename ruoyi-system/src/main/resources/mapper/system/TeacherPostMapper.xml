@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ruoyi.system.mapper.TeacherPostMapper">
+
+    <delete id="deleteTeacherPostByTeacherId" parameterType="long">
+        delete from teacher_post where teacher_id = #{teacherId}
+    </delete>
+
+    <insert id="batchTeacherPost">
+        insert into teacher_post(teacher_id, post_id)
+        values
+        <foreach collection="postIds" item="postId" separator=",">
+            (#{teacherId}, #{postId})
+        </foreach>
+    </insert>
+
+    <select id="selectPostIdsByTeacherId" resultType="long">
+        select post_id from teacher_post where teacher_id = #{teacherId}
+    </select>
+
+    <select id="selectPostNamesByTeacherId" resultType="string">
+        SELECT GROUP_CONCAT(p.post_name SEPARATOR '，')
+        FROM sys_post p
+                 JOIN teacher_post tp ON p.post_id = tp.post_id
+        WHERE tp.teacher_id = #{teacherId}
+    </select>
+
+
+</mapper>
