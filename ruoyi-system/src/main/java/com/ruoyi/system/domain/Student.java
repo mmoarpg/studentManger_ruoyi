@@ -38,6 +38,18 @@ public class Student extends BaseEntity
     @Excel(name = "班级ID")
     private Long classId;
 
+    @Excel(name = "班级")
+    private String clazzName;
+
+    public String getClazzName() {
+        return clazzName;
+    }
+
+    public void setClazzName(String clazzName) {
+        this.clazzName = clazzName;
+    }
+
+
     public void setStudentId(Long studentId) 
     {
         this.studentId = studentId;
@@ -88,12 +100,12 @@ public class Student extends BaseEntity
         return email;
     }
 
-    public void setClassId(Long classId) 
+    public void setClassId(Long classId)
     {
         this.classId = classId;
     }
 
-    public Long getClassId() 
+    public Long getClassId()
     {
         return classId;
     }
@@ -107,6 +119,7 @@ public class Student extends BaseEntity
             .append("phone", getPhone())
             .append("email", getEmail())
             .append("classId", getClassId())
+            .append("clazzName", getClazzName())
             .append("createTime", getCreateTime())
             .toString();
     }

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.HomeworkMapper">
+    
+    <resultMap type="Homework" id="HomeworkResult">
+        <result property="homeworkId"    column="homework_id"    />
+        <result property="title"    column="title"    />
+        <result property="content"    column="content"    />
+        <result property="creatorId"    column="creator_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectHomeworkVo">
+        select h.homework_id,
+        h.title,
+        h.content,
+        h.creator_id,
+        t.teacher_name,   <!-- 联查 -->
+        h.create_time,
+        h.update_time
+        from homework h
+        left join teacher t on h.creator_id = t.teacher_id
+    </sql>
+
+    <select id="selectHomeworkList" parameterType="Homework" resultMap="HomeworkResult">
+        <include refid="selectHomeworkVo"/>
+        <where>  
+            <if test="title != null  and title != ''"> and title = #{title}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="creatorId != null "> and creator_id = #{creatorId}</if>
+        </where>
+    </select>
+    
+    <select id="selectHomeworkByHomeworkId" parameterType="Long" resultMap="HomeworkResult">
+        <include refid="selectHomeworkVo"/>
+        where homework_id = #{homeworkId}
+    </select>
+
+    <insert id="insertHomework" parameterType="Homework" useGeneratedKeys="true" keyProperty="homeworkId">
+        insert into homework
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">title,</if>
+            <if test="content != null">content,</if>
+            <if test="creatorId != null">creator_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="creatorId != null">#{creatorId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateHomework" parameterType="Homework">
+        update homework
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where homework_id = #{homeworkId}
+    </update>
+
+    <delete id="deleteHomeworkByHomeworkId" parameterType="Long">
+        delete from homework where homework_id = #{homeworkId}
+    </delete>
+
+    <delete id="deleteHomeworkByHomeworkIds" parameterType="String">
+        delete from homework where homework_id in 
+        <foreach item="homeworkId" collection="array" open="(" separator="," close=")">
+            #{homeworkId}
+        </foreach>
+    </delete>
+</mapper>

@@ -161,7 +161,14 @@ export const dynamicRoutes = [
         meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
       }
     ]
+  },
+  {
+    path: '/system/scheduleTable',
+    component: () => import('@/views/system/schedule/scheduleTable'),
+    name: 'ScheduleTable',
+    meta: { title: '课程表', icon: 'el-icon-date' }
   }
+
 ]
 
 // 防止连续点击多次路由报错

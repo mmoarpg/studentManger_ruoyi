@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CoursePackageContentMapper">
+
+    <resultMap type="CoursePackageContent" id="CoursePackageContentResult">
+        <result property="id"    column="id"    />
+        <result property="packageId"    column="package_id"    />
+        <result property="contentName"    column="content_name"    />
+        <result property="description"    column="description"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectCoursePackageContentVo">
+        select cpc.id,
+        cpc.package_id,
+        cp.package_name as packageName,   <!-- 课程包名字 -->
+        cpc.content_name,
+        cpc.description,
+        cpc.create_time
+        from course_package_content cpc
+        left join course_package cp on cpc.package_id = cp.id
+    </sql>
+
+    <select id="selectCoursePackageContentList" parameterType="CoursePackageContent" resultMap="CoursePackageContentResult">
+        <include refid="selectCoursePackageContentVo"/>
+        <where>
+            <if test="packageId != null "> and cpc.package_id = #{packageId}</if>
+            <if test="contentName != null and contentName != ''"> and cpc.content_name like concat('%', #{contentName}, '%')</if>
+            <if test="description != null and description != ''"> and cpc.description = #{description}</if>
+
+        </where>
+    </select>
+
+    <select id="selectCoursePackageContentById" parameterType="Long" resultMap="CoursePackageContentResult">
+        <include refid="selectCoursePackageContentVo"/>
+        where cpc.id = #{id}
+    </select>
+
+    <insert id="insertCoursePackageContent" parameterType="CoursePackageContent" useGeneratedKeys="true" keyProperty="id">
+        insert into course_package_content
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="packageId != null">package_id,</if>
+            <if test="contentName != null and contentName != ''">content_name,</if>
+            <if test="description != null">description,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="packageId != null">#{packageId},</if>
+            <if test="contentName != null and contentName != ''">#{contentName},</if>
+            <if test="description != null">#{description},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCoursePackageContent" parameterType="CoursePackageContent">
+        update course_package_content
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="packageId != null">package_id = #{packageId},</if>
+            <if test="contentName != null and contentName != ''">content_name = #{contentName},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCoursePackageContentById" parameterType="Long">
+        delete from course_package_content where id = #{id}
+    </delete>
+
+    <delete id="deleteCoursePackageContentByIds" parameterType="String">
+        delete from course_package_content where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

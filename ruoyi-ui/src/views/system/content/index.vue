@@ -1,44 +1,18 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="学员姓名" prop="studentName">
+      <el-form-item label="课程包id" prop="packageId">
         <el-input
-          v-model="queryParams.studentName"
-          placeholder="请输入学员姓名"
+          v-model="queryParams.packageId"
+          placeholder="请输入课程包id"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="性别" prop="gender">
-        <el-select v-model="queryParams.gender" placeholder="请选择性别" clearable>
-          <el-option
-            v-for="dict in dict.type.sys_user_sex"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="联系电话" prop="phone">
+      <el-form-item label="名称" prop="contentName">
         <el-input
-          v-model="queryParams.phone"
-          placeholder="请输入联系电话"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="电子邮箱" prop="email">
-        <el-input
-          v-model="queryParams.email"
-          placeholder="请输入电子邮箱"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="班级ID" prop="classId">
-        <el-input
-          v-model="queryParams.classId"
-          placeholder="请输入班级ID"
+          v-model="queryParams.contentName"
+          placeholder="请输入名称"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -57,7 +31,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['system:student:add']"
+          v-hasPermi="['system:content:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -68,7 +42,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:student:edit']"
+          v-hasPermi="['system:content:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -79,12 +53,20 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:student:remove']"
+          v-hasPermi="['system:content:remove']"
         >删除</el-button>
       </el-col>
+
       <el-col :span="1.5">
-        <el-button type="info" plain icon="el-icon-upload2" size="mini" @click="handleImport" v-hasPermi="['system:student:import']">导入</el-button>
+      <el-button
+        type="info"
+        plain
+        icon="el-icon-upload2"
+        size="mini" @click="handleImport"
+        v-hasPermi="['system:content:import']"
+      >导入</el-button>
       </el-col>
+
       <el-col :span="1.5">
         <el-button
           type="warning"
@@ -92,24 +74,18 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['system:student:export']"
+          v-hasPermi="['system:content:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="studentList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="contentList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="学员ID" align="center" prop="studentId" />
-      <el-table-column label="学员姓名" align="center" prop="studentName" />
-      <el-table-column label="性别" align="center" prop="gender">
-        <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_user_sex" :value="scope.row.gender"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="联系电话" align="center" prop="phone" />
-      <el-table-column label="电子邮箱" align="center" prop="email" />
-      <el-table-column label="班级" align="center" prop="clazzName" />
+      <el-table-column label="课程包内容id" align="center" prop="id" />
+      <el-table-column label="课程包" align="center" prop="packageName" />
+      <el-table-column label="内容" align="center" prop="contentName" />
+      <el-table-column label="描述" align="center" prop="description" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -117,14 +93,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:student:edit']"
+            v-hasPermi="['system:content:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:student:remove']"
+            v-hasPermi="['system:content:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -138,40 +114,23 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改学生管理对话框 -->
+    <!-- 添加或修改课程包内容管理对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="学员姓名" prop="studentName">
-          <el-input v-model="form.studentName" placeholder="请输入学员姓名" />
-        </el-form-item>
-        <el-form-item label="性别" prop="gender">
-          <el-select v-model="form.gender" placeholder="请选择性别">
-            <el-option
-              v-for="dict in dict.type.sys_user_sex"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="联系电话" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入联系电话" />
-        </el-form-item>
-        <el-form-item label="电子邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="请输入电子邮箱" />
-        </el-form-item>
 
-        <el-form-item label="班级" prop="classId">
-          <el-select v-model="form.classId" placeholder="请选择班级" clearable filterable>
-            <el-option
-              v-for="item in clazzOption"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+        <el-form-item label="课程包" prop="packageId">
+          <el-select v-model="form.packageId" placeholder="请选择课程包" clearable filterable>
+            <el-option v-for="t in coursePackageOptions" :key="t.value" :label="t.label" :value="t.value" />
           </el-select>
         </el-form-item>
 
+
+        <el-form-item label="名称" prop="contentName">
+          <el-input v-model="form.contentName" placeholder="请输入名称" />
+        </el-form-item>
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -179,7 +138,7 @@
       </div>
     </el-dialog>
 
-    <!-- 学生导入对话框 -->
+    <!-- 课程包内容导入对话框 -->
     <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
       <el-upload
         ref="upload"
@@ -197,7 +156,7 @@
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         <div class="el-upload__tip text-center" slot="tip">
           <div class="el-upload__tip" slot="tip">
-            <el-checkbox v-model="upload.updateSupport" />是否更新已经存在的学生数据
+            <el-checkbox v-model="upload.updateSupport" />是否更新已经存在的课程数据
           </div>
           <span>仅允许导入xls、xlsx格式文件。</span>
           <el-link type="primary" :underline="false" style="font-size: 12px; vertical-align: baseline" @click="importTemplate">
@@ -210,18 +169,16 @@
         <el-button @click="upload.open = false">取 消</el-button>
       </div>
     </el-dialog>
-
   </div>
 </template>
 
 <script>
-import { listStudent, getStudent, delStudent, addStudent, updateStudent } from "@/api/system/student"
+import { listContent, getContent, delContent, addContent, updateContent } from "@/api/system/content"
+import {listPackage} from "@/api/system/package";
 import {getToken} from "@/utils/auth";
-import { listClazz } from "@/api/system/clazz"
 
 export default {
-  name: "Student",
-  dicts: ['sys_user_sex'],
+  name: "Content",
   data() {
     return {
       // 遮罩层
@@ -236,12 +193,22 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 学生管理表格数据
-      studentList: [],
+      // 课程包内容管理表格数据
+      contentList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
+      // 课程包列表
+      coursePackageOptions: [],
+      // 查询参数
+      queryParams: {
+        pageNum: 1,
+        pageSize: 10,
+        packageId: null,
+        contentName: null,
+        description: null,
+      },
       // 用户导入参数
       upload: {
         // 是否显示弹出层（用户导入）
@@ -255,46 +222,41 @@ export default {
         // 设置上传的请求头部
         headers: { Authorization: "Bearer " + getToken() },
         // 上传的地址
-        url: process.env.VUE_APP_BASE_API + "/system/student/importData"
+        url: process.env.VUE_APP_BASE_API + "/system/content/importData"
       },
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        studentName: null,
-        gender: null,
-        phone: null,
-        email: null,
-        classId: null,
-      },
-      // 班级列表
-      clazzOption:[],
       // 表单参数
       form: {},
       // 表单校验
       rules: {
+        packageId: [
+          { required: true, message: "课程包id不能为空", trigger: "blur" }
+        ],
+        contentName: [
+          { required: true, message: "名称不能为空", trigger: "blur" }
+        ],
       }
     }
   },
   created() {
     this.getList()
-    this.getClazzOptions()
+    this.getCoursePackages()
   },
   methods: {
-    /** 查询学生管理列表 */
+    /** 查询课程包内容管理列表 */
     getList() {
       this.loading = true
-      listStudent(this.queryParams).then(response => {
-        this.studentList = response.rows
+      listContent(this.queryParams).then(response => {
+        this.contentList = response.rows
         this.total = response.total
         this.loading = false
       })
     },
-    getClazzOptions() {
-      listClazz({ pageNum: 1, pageSize: 9999 }).then(res => {
-        this.clazzOption = res.rows.map(u => ({
-          label: u.clazzName,   // sys_user.nick_name
-          value: u.clazzId      // sys_user.user_id
+    /** 获取课程包下拉选项 */
+    getCoursePackages() {
+      listPackage({ pageNum: 1, pageSize: 9999 }).then(res => {
+        this.coursePackageOptions = res.rows.map(u => ({
+          label: u.packageName,   // sys_user.nick_name
+          value: u.id      // sys_user.user_id
         }))
       })
     },
@@ -306,12 +268,10 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        studentId: null,
-        studentName: null,
-        gender: null,
-        phone: null,
-        email: null,
-        classId: null,
+        id: null,
+        packageId: null,
+        contentName: null,
+        description: null,
         createTime: null
       }
       this.resetForm("form")
@@ -328,7 +288,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.studentId)
+      this.ids = selection.map(item => item.id)
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
@@ -336,30 +296,30 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = "添加学生管理"
+      this.title = "添加课程包内容管理"
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const studentId = row.studentId || this.ids
-      getStudent(studentId).then(response => {
+      const id = row.id || this.ids
+      getContent(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = "修改学生管理"
+        this.title = "修改课程包内容管理"
       })
     },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.studentId != null) {
-            updateStudent(this.form).then(response => {
+          if (this.form.id != null) {
+            updateContent(this.form).then(response => {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
             })
           } else {
-            addStudent(this.form).then(response => {
+            addContent(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
@@ -370,9 +330,9 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const studentIds = row.studentId || this.ids
-      this.$modal.confirm('是否确认删除学生管理编号为"' + studentIds + '"的数据项？').then(function() {
-        return delStudent(studentIds)
+      const ids = row.id || this.ids
+      this.$modal.confirm('是否确认删除课程包内容管理编号为"' + ids + '"的数据项？').then(function() {
+        return delContent(ids)
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("删除成功")
@@ -380,20 +340,20 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('system/student/export', {
+      this.download('system/content/export', {
         ...this.queryParams
-      }, `student_${new Date().getTime()}.xlsx`)
+      }, `content_${new Date().getTime()}.xlsx`)
     },
 
     /** 导入按钮操作 */
     handleImport() {
-      this.upload.title = "学生导入"
+      this.upload.title = "课程导入"
       this.upload.open = true
     },
 
     /** 下载模板操作 */
     importTemplate() {
-      this.download('system/student/importTemplate', {}, `student_template_${new Date().getTime()}.xlsx`)
+      this.download('system/content/importTemplate', {}, `content_template_${new Date().getTime()}.xlsx`)
     },
 
 // 文件上传中处理
@@ -425,7 +385,7 @@ export default {
         return
       }
       this.$refs.upload.submit()
-    },
+    }
   }
 }
 </script>

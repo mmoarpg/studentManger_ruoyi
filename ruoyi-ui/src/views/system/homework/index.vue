@@ -1,37 +1,25 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="班级名称" prop="clazzName">
+      <el-form-item label="作业标题" prop="title">
         <el-input
-          v-model="queryParams.clazzName"
-          placeholder="请输入班级名称"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="年级" prop="grade">
-        <el-input
-          v-model="queryParams.grade"
-          placeholder="请输入年级"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="班主任ID" prop="teacherId">
-        <el-input
-          v-model="queryParams.teacherId"
-          placeholder="请输入班主任ID"
+          v-model="queryParams.title"
+          placeholder="请输入作业标题"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
 
-      <el-form-item label="校区" prop="campusId">
-        <el-select v-model="form.campusId" placeholder="请选择校区" clearable filterable>
-          <el-option v-for="c in campusOptions" :key="c.value" :label="c.label" :value="c.value" />
+      <el-form-item label="布置老师" prop="creatorId">
+        <el-select v-model="form.creatorId" placeholder="请选择老师" filterable clearable>
+          <el-option
+            v-for="t in teacherOptions"
+            :key="t.teacherId"
+            :label="t.teacherName"
+            :value="t.teacherId"
+          />
         </el-select>
       </el-form-item>
-
 
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -47,7 +35,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['system:clazz:add']"
+          v-hasPermi="['system:homework:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -58,7 +46,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:clazz:edit']"
+          v-hasPermi="['system:homework:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -69,7 +57,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:clazz:remove']"
+          v-hasPermi="['system:homework:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -79,21 +67,18 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['system:clazz:export']"
+          v-hasPermi="['system:homework:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="clazzList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="homeworkList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="班级ID" align="center" prop="clazzId" />
-      <el-table-column label="班级名称" align="center" prop="clazzName" />
-      <el-table-column label="年级" align="center" prop="grade" />
-      <!-- 原来：prop="teacherId" -->
-      <el-table-column label="班主任" align="center" prop="teacherName" />
-      <el-table-column label="校区" align="center" prop="campusName" />
-      <el-table-column label="状态：1-正常 0-禁用" align="center" prop="status" />
+      <el-table-column label="作业定义ID" align="center" prop="homeworkId" />
+      <el-table-column label="作业标题" align="center" prop="title" />
+      <el-table-column label="作业说明/要求" align="center" prop="content" />
+      <el-table-column label="布置老师" align="center" prop="creatorName" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -101,14 +86,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:clazz:edit']"
+            v-hasPermi="['system:homework:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:clazz:remove']"
+            v-hasPermi="['system:homework:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -122,24 +107,24 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改班级管理对话框 -->
+    <!-- 添加或修改作业定义对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="班级名称" prop="clazzName">
-          <el-input v-model="form.clazzName" placeholder="请输入班级名称" />
+        <el-form-item label="作业标题" prop="title">
+          <el-input v-model="form.title" placeholder="请输入作业标题" />
         </el-form-item>
-        <el-form-item label="年级" prop="grade">
-          <el-input v-model="form.grade" placeholder="请输入年级" />
+        <el-form-item label="作业说明/要求">
+          <editor v-model="form.content" :min-height="192"/>
         </el-form-item>
-        <!-- 表单：班主任 -->
-        <el-form-item label="班主任" prop="teacherId">
-          <el-select v-model="form.teacherId" placeholder="请选择班主任" clearable filterable>
-            <el-option v-for="t in teacherOptions" :key="t.value" :label="t.label" :value="t.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="校区" prop="campusId">
-          <el-select v-model="form.campusId" placeholder="请选择校区" clearable filterable>
-            <el-option v-for="c in campusOptions" :key="c.value" :label="c.label" :value="c.value" />
+
+        <el-form-item label="布置老师" prop="creatorId">
+          <el-select v-model="form.creatorId" placeholder="请选择老师" filterable clearable>
+            <el-option
+              v-for="t in teacherOptions"
+              :key="t.teacherId"
+              :label="t.teacherName"
+              :value="t.teacherId"
+            />
           </el-select>
         </el-form-item>
       </el-form>
@@ -151,14 +136,12 @@
   </div>
 </template>
 
-
 <script>
-import { listClazz, getClazz, delClazz, addClazz, updateClazz } from "@/api/system/clazz"
+import { listHomework, getHomework, delHomework, addHomework, updateHomework } from "@/api/system/homework"
 import { listTeacher } from "@/api/system/teacher"
-import { listDept } from "@/api/system/dept"
 
 export default {
-  name: "Clazz",
+  name: "Homework",
   data() {
     return {
       // 遮罩层
@@ -173,74 +156,48 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 班级管理表格数据
-      clazzList: [],
+      // 作业定义表格数据
+      homeworkList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
-
-      campusOptions: [],
-      teacherOptions: [], // 下拉选项
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        clazzName: null,
-        grade: null,
-        teacherId: null,
-        campusId: null,
-        status: null,
+        title: null,
+        content: null,
+        creatorId: null,
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        clazzName: [
-          { required: true, message: "班级名称不能为空", trigger: "blur" }
+        title: [
+          { required: true, message: "作业标题不能为空", trigger: "blur" }
         ],
-        // grade: [
-        //   { required: true, message: "年级不能为空", trigger: "blur" }
-        // ],
-        teacherId: [
-          { required: true, message: "班主任ID不能为空", trigger: "blur" }
+        createTime: [
+          { required: true, message: "创建时间不能为空", trigger: "blur" }
         ],
-      }
+      },
+      teacherOptions: [],
     }
   },
   created() {
     this.getList()
-    this.getTeacherOptions()   // 页面进来先把老师下拉拉好
-    this.getCampusOptions()
+    this.getTeacherOptions()
   },
   methods: {
-    /** 查询班级管理列表 */
+    /** 查询作业定义列表 */
     getList() {
       this.loading = true
-      listClazz(this.queryParams).then(response => {
-        this.clazzList = response.rows
+      listHomework(this.queryParams).then(response => {
+        this.homeworkList = response.rows
         this.total = response.total
         this.loading = false
       })
     },
-    getTeacherOptions() {
-      listTeacher({ pageNum: 1, pageSize: 9999 }).then(res => {
-        this.teacherOptions = res.rows.map(u => ({
-          label: u.teacherName,   // sys_user.nick_name
-          value: u.teacherId      // sys_user.user_id
-        }))
-      })
-    },
-    getCampusOptions() {
-      listDept().then(res => {
-        // ⚠️ 根据业务过滤：只取校区（比如 parent_id=0 的部门）
-        this.campusOptions = res.data.map(d => ({
-          label: d.deptName,
-          value: d.deptId
-        }))
-      })
-    },
-
     // 取消按钮
     cancel() {
       this.open = false
@@ -249,13 +206,12 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        clazzId: null,
-        clazzName: null,
-        grade: null,
-        teacherId: null,
-        campusId: null,
-        status: null,
-        createTime: null
+        homeworkId: null,
+        title: null,
+        content: null,
+        creatorId: null,
+        createTime: null,
+        updateTime: null
       }
       this.resetForm("form")
     },
@@ -271,7 +227,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.clazzId)
+      this.ids = selection.map(item => item.homeworkId)
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
@@ -279,32 +235,30 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = "添加班级管理"
-      this.getTeacherOptions() // 保险：打开弹窗前刷新一下
+      this.title = "添加作业定义"
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const clazzId = row.clazzId || this.ids
-      getClazz(clazzId).then(response => {
+      const homeworkId = row.homeworkId || this.ids
+      getHomework(homeworkId).then(response => {
         this.form = response.data
         this.open = true
-        this.title = "修改班级管理"
-        this.getTeacherOptions() // 保险：打开弹窗前刷新一下
+        this.title = "修改作业定义"
       })
     },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.clazzId != null) {
-            updateClazz(this.form).then(response => {
+          if (this.form.homeworkId != null) {
+            updateHomework(this.form).then(response => {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
             })
           } else {
-            addClazz(this.form).then(response => {
+            addHomework(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
@@ -315,9 +269,9 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const clazzIds = row.clazzId || this.ids
-      this.$modal.confirm('是否确认删除班级管理编号为"' + clazzIds + '"的数据项？').then(function() {
-        return delClazz(clazzIds)
+      const homeworkIds = row.homeworkId || this.ids
+      this.$modal.confirm('是否确认删除作业定义编号为"' + homeworkIds + '"的数据项？').then(function() {
+        return delHomework(homeworkIds)
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("删除成功")
@@ -325,10 +279,17 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('system/clazz/export', {
+      this.download('system/homework/export', {
         ...this.queryParams
-      }, `clazz_${new Date().getTime()}.xlsx`)
-    }
+      }, `homework_${new Date().getTime()}.xlsx`)
+    },
+
+    getTeacherOptions() {
+      listTeacher().then(res => {
+        // 假设返回 { rows: [ { teacherId: 1, teacherName: '张老师' } ] }
+        this.teacherOptions = res.rows
+      })
+    },
   }
 }
 </script>

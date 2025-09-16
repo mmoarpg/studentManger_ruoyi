@@ -1,39 +1,64 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.StudentMapper">
-    
+
+    <!-- 结果映射 -->
     <resultMap type="Student" id="StudentResult">
-        <result property="studentId"    column="student_id"    />
-        <result property="studentName"    column="student_name"    />
-        <result property="gender"    column="gender"    />
-        <result property="phone"    column="phone"    />
-        <result property="email"    column="email"    />
-        <result property="classId"    column="class_id"    />
-        <result property="createTime"    column="create_time"    />
+        <result property="studentId"   column="student_id"/>
+        <result property="studentName" column="student_name"/>
+        <result property="gender"      column="gender"/>
+        <result property="phone"       column="phone"/>
+        <result property="email"       column="email"/>
+        <result property="classId"     column="class_id"/>
+        <result property="clazzName"   column="clazz_name"/> <!-- 来自关联表 -->
+        <result property="createTime"  column="create_time"/>
     </resultMap>
 
+    <!-- 公共查询列，关联 clazz 表 -->
     <sql id="selectStudentVo">
-        select student_id, student_name, gender, phone, email, class_id, create_time from student
+        select s.student_id,
+               s.student_name,
+               s.gender,
+               s.phone,
+               s.email,
+               s.class_id,
+               c.clazz_name,
+               s.create_time
+        from student s
+                 left join clazz c on s.class_id = c.clazz_id
     </sql>
 
+    <!-- 查询学生列表 -->
     <select id="selectStudentList" parameterType="Student" resultMap="StudentResult">
         <include refid="selectStudentVo"/>
-        <where>  
-            <if test="studentName != null  and studentName != ''"> and student_name like concat('%', #{studentName}, '%')</if>
-            <if test="gender != null  and gender != ''"> and gender = #{gender}</if>
-            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
-            <if test="email != null  and email != ''"> and email = #{email}</if>
-            <if test="classId != null "> and class_id = #{classId}</if>
+        <where>
+            <if test="studentName != null and studentName != ''">
+                and s.student_name like concat('%', #{studentName}, '%')
+            </if>
+            <if test="gender != null and gender != ''">
+                and s.gender = #{gender}
+            </if>
+            <if test="phone != null and phone != ''">
+                and s.phone = #{phone}
+            </if>
+            <if test="email != null and email != ''">
+                and s.email = #{email}
+            </if>
+            <if test="classId != null">
+                and s.class_id = #{classId}
+            </if>
         </where>
     </select>
-    
+
+    <!-- 根据ID查询 -->
     <select id="selectStudentByStudentId" parameterType="Long" resultMap="StudentResult">
         <include refid="selectStudentVo"/>
-        where student_id = #{studentId}
+        where s.student_id = #{studentId}
     </select>
 
+    <!-- 新增学生 -->
     <insert id="insertStudent" parameterType="Student" useGeneratedKeys="true" keyProperty="studentId">
         insert into student
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -43,7 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="email != null">email,</if>
             <if test="classId != null">class_id,</if>
             <if test="createTime != null">create_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="studentName != null">#{studentName},</if>
             <if test="gender != null">#{gender},</if>
@@ -51,9 +76,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="email != null">#{email},</if>
             <if test="classId != null">#{classId},</if>
             <if test="createTime != null">#{createTime},</if>
-         </trim>
+        </trim>
     </insert>
 
+    <!-- 修改学生 -->
     <update id="updateStudent" parameterType="Student">
         update student
         <trim prefix="SET" suffixOverrides=",">
@@ -67,12 +93,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where student_id = #{studentId}
     </update>
 
+    <!-- 删除单个 -->
     <delete id="deleteStudentByStudentId" parameterType="Long">
         delete from student where student_id = #{studentId}
     </delete>
 
+    <!-- 批量删除 -->
     <delete id="deleteStudentByStudentIds" parameterType="String">
-        delete from student where student_id in 
+        delete from student where student_id in
         <foreach item="studentId" collection="array" open="(" separator="," close=")">
             #{studentId}
         </foreach>

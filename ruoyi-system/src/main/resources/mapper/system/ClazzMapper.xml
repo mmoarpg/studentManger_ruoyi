@@ -9,6 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="clazzName"    column="clazz_name"    />
         <result property="grade"    column="grade"    />
         <result property="teacherId"    column="teacher_id"    />
+        <result property="campusName" column="campus_name"/>
         <result property="campusId"    column="campus_id"    />
         <result property="status"    column="status"    />
         <result property="createTime"    column="create_time"    />
@@ -22,11 +23,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             c.grade,
             c.teacher_id,
             t.teacher_name,
+            d.dept_name AS campus_name,
             c.campus_id,
             c.status,
             c.create_time
         FROM clazz c
                  LEFT JOIN teacher t ON c.teacher_id = t.teacher_id
+                 LEFT JOIN sys_dept d ON c.campus_id = d.dept_id
     </sql>
 
     <select id="selectClazzList" parameterType="Clazz" resultMap="ClazzResult">

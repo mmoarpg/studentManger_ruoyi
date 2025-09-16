@@ -38,6 +38,16 @@ public class Clazz extends BaseEntity
     @Excel(name = "校区ID")
     private Long campusId;
 
+    public String getCampusName() {
+        return campusName;
+    }
+
+    public void setCampusName(String campusName) {
+        this.campusName = campusName;
+    }
+
+    private String campusName;
+
     /** 状态：1-正常 0-禁用 */
     @Excel(name = "状态：1-正常 0-禁用")
     private Long status;

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.CoursePackageRelationMapper">
+    
+    <resultMap type="CoursePackageRelation" id="CoursePackageRelationResult">
+        <result property="id"    column="id"    />
+        <result property="courseId"    column="course_id"    />
+        <result property="packageId"    column="package_id"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectCoursePackageRelationVo">
+        select id, course_id, package_id, create_time from course_package_relation
+    </sql>
+
+    <select id="selectCoursePackageRelationList" parameterType="CoursePackageRelation" resultMap="CoursePackageRelationResult">
+        <include refid="selectCoursePackageRelationVo"/>
+        <where>  
+            <if test="courseId != null "> and course_id = #{courseId}</if>
+            <if test="packageId != null "> and package_id = #{packageId}</if>
+        </where>
+    </select>
+    
+    <select id="selectCoursePackageRelationById" parameterType="Long" resultMap="CoursePackageRelationResult">
+        <include refid="selectCoursePackageRelationVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCoursePackageRelation" parameterType="CoursePackageRelation" useGeneratedKeys="true" keyProperty="id">
+        insert into course_package_relation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">course_id,</if>
+            <if test="packageId != null">package_id,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">#{courseId},</if>
+            <if test="packageId != null">#{packageId},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCoursePackageRelation" parameterType="CoursePackageRelation">
+        update course_package_relation
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="packageId != null">package_id = #{packageId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCoursePackageRelationById" parameterType="Long">
+        delete from course_package_relation where id = #{id}
+    </delete>
+
+    <delete id="deleteCoursePackageRelationByIds" parameterType="String">
+        delete from course_package_relation where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectCoursesByPackageId" resultType="com.ruoyi.system.domain.Course">
+        SELECT c.course_id, c.course_name, c.description
+        FROM course_package_relation r
+                 LEFT JOIN course c ON r.course_id = c.course_id
+        WHERE r.package_id = #{packageId}
+    </select>
+
+    <delete id="deleteByCourseId" parameterType="long">
+        delete from course_package_relation where course_id = #{courseId}
+    </delete>
+
+    <select id="selectPackageIdsByCourseId" parameterType="Long" resultType="Long">
+        SELECT package_id
+        FROM course_package_relation
+        WHERE course_id = #{courseId}
+    </select>
+
+    <insert id="batchInsert">
+        insert into course_package_relation (course_id, package_id, create_time)
+        values
+        <foreach collection="list" item="it" separator=",">
+            (#{it.courseId}, #{it.packageId}, now())
+        </foreach>
+    </insert>
+
+    <select id="selectPackageNamesByCourseId" parameterType="long" resultType="string">
+        select cp.package_name
+        from course_package_relation r
+                 join course_package cp on r.package_id = cp.id
+        where r.course_id = #{courseId}
+    </select>
+</mapper>

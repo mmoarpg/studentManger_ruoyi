@@ -28,8 +28,8 @@ import com.ruoyi.common.core.page.TableDataInfo;
  * @date 2025-09-03
  */
 @RestController
-@RequestMapping("/system/post")
-public class PostController extends BaseController
+@RequestMapping("/system/teacherPost")
+public class TeacherPostController extends BaseController
 {
     @Autowired
     private IPostService postService;
