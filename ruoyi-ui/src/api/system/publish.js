@@ -9,14 +9,6 @@ export function listPublish(query) {
   })
 }
 
-// 查询作业发布详细
-export function getPublish(publishId) {
-  return request({
-    url: '/system/publish/' + publishId,
-    method: 'get'
-  })
-}
-
 // 新增作业发布
 export function addPublish(data) {
   return request({

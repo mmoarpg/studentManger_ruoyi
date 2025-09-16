@@ -45,6 +45,45 @@ public class HomeworkPublish extends BaseEntity
     @Excel(name = "截止时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date deadline;
 
+    private String clazzName;   // 冗余展示
+
+    public String getClazzName() {
+        return clazzName;
+    }
+
+    public void setClazzName(String clazzName) {
+        this.clazzName = clazzName;
+    }
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    private String teacherName;
+    private String courseName;  // 冗余展示
+
+    public String getHomeworkTitle() {
+        return homeworkTitle;
+    }
+
+    public void setHomeworkTitle(String homeworkTitle) {
+        this.homeworkTitle = homeworkTitle;
+    }
+
+    private String homeworkTitle; // 冗余展示
+
     public void setPublishId(Long publishId) 
     {
         this.publishId = publishId;
@@ -54,7 +93,6 @@ public class HomeworkPublish extends BaseEntity
     {
         return publishId;
     }
-
     public void setHomeworkId(Long homeworkId) 
     {
         this.homeworkId = homeworkId;
@@ -64,7 +102,6 @@ public class HomeworkPublish extends BaseEntity
     {
         return homeworkId;
     }
-
     public void setClazzId(Long clazzId) 
     {
         this.clazzId = clazzId;
@@ -74,7 +111,6 @@ public class HomeworkPublish extends BaseEntity
     {
         return clazzId;
     }
-
     public void setClazzCourseId(Long clazzCourseId) 
     {
         this.clazzCourseId = clazzCourseId;
@@ -84,7 +120,6 @@ public class HomeworkPublish extends BaseEntity
     {
         return clazzCourseId;
     }
-
     public void setCourseId(Long courseId) 
     {
         this.courseId = courseId;
@@ -94,7 +129,6 @@ public class HomeworkPublish extends BaseEntity
     {
         return courseId;
     }
-
     public void setTeacherId(Long teacherId) 
     {
         this.teacherId = teacherId;
@@ -104,7 +138,6 @@ public class HomeworkPublish extends BaseEntity
     {
         return teacherId;
     }
-
     public void setDeadline(Date deadline) 
     {
         this.deadline = deadline;

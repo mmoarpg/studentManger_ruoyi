@@ -1,5 +1,6 @@
 package com.ruoyi.system.domain;
 
+import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -9,7 +10,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * 作业定义对象 homework
  * 
  * @author ruoyi
- * @date 2025-09-15
+ * @date 2025-09-16
  */
 public class Homework extends BaseEntity
 {
@@ -30,9 +31,8 @@ public class Homework extends BaseEntity
     @Excel(name = "布置老师ID")
     private Long creatorId;
 
-    /** 布置老师姓名（非数据库字段，前端展示用） */
-    private String creatorName;
-
+    /** 作业发布信息 */
+    private List<HomeworkPublish> homeworkPublishList;
 
     public void setHomeworkId(Long homeworkId) 
     {
@@ -74,12 +74,14 @@ public class Homework extends BaseEntity
         return creatorId;
     }
 
-    public String getCreatorName() {
-        return creatorName;
+    public List<HomeworkPublish> getHomeworkPublishList()
+    {
+        return homeworkPublishList;
     }
 
-    public void setCreatorName(String creatorName) {
-        this.creatorName = creatorName;
+    public void setHomeworkPublishList(List<HomeworkPublish> homeworkPublishList)
+    {
+        this.homeworkPublishList = homeworkPublishList;
     }
 
     @Override
@@ -91,6 +93,7 @@ public class Homework extends BaseEntity
             .append("creatorId", getCreatorId())
             .append("createTime", getCreateTime())
             .append("updateTime", getUpdateTime())
+            .append("homeworkPublishList", getHomeworkPublishList())
             .toString();
     }
 }

@@ -1,85 +1,76 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.HomeworkPublishMapper">
-    
+
     <resultMap type="HomeworkPublish" id="HomeworkPublishResult">
-        <result property="publishId"    column="publish_id"    />
-        <result property="homeworkId"    column="homework_id"    />
-        <result property="clazzId"    column="clazz_id"    />
-        <result property="clazzCourseId"    column="clazz_course_id"    />
-        <result property="courseId"    column="course_id"    />
-        <result property="teacherId"    column="teacher_id"    />
-        <result property="deadline"    column="deadline"    />
-        <result property="createTime"    column="create_time"    />
+        <result property="publishId" column="publish_id"/>
+        <result property="homeworkId" column="homework_id"/>
+        <result property="homeworkTitle" column="homework_title"/>
+        <result property="clazzId" column="clazz_id"/>
+        <result property="clazzName" column="clazz_name"/>
+        <result property="courseId" column="course_id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="teacherId" column="teacher_id"/>
+        <result property="teacherName" column="teacher_name"/>
+        <result property="deadline" column="deadline"/>
+        <result property="createTime" column="create_time"/>
     </resultMap>
 
     <sql id="selectHomeworkPublishVo">
-        select publish_id, homework_id, clazz_id, clazz_course_id, course_id, teacher_id, deadline, create_time from homework_publish
+        select p.publish_id, p.homework_id, h.title as homework_title,
+               p.clazz_id, c.clazz_name,
+               p.course_id, co.course_name,
+               p.teacher_id, t.teacher_name,
+               p.deadline, p.create_time
+        from homework_publish p
+                 left join homework h on p.homework_id = h.homework_id
+                 left join clazz c on p.clazz_id = c.clazz_id
+                 left join course co on p.course_id = co.course_id
+                 left join teacher t on p.teacher_id = t.teacher_id
     </sql>
 
     <select id="selectHomeworkPublishList" parameterType="HomeworkPublish" resultMap="HomeworkPublishResult">
         <include refid="selectHomeworkPublishVo"/>
-        <where>  
-            <if test="homeworkId != null "> and homework_id = #{homeworkId}</if>
-            <if test="clazzId != null "> and clazz_id = #{clazzId}</if>
-            <if test="clazzCourseId != null "> and clazz_course_id = #{clazzCourseId}</if>
-            <if test="courseId != null "> and course_id = #{courseId}</if>
-            <if test="teacherId != null "> and teacher_id = #{teacherId}</if>
-            <if test="deadline != null "> and deadline = #{deadline}</if>
+        <where>
+            <if test="homeworkId != null"> and p.homework_id = #{homeworkId}</if>
+            <if test="clazzId != null"> and p.clazz_id = #{clazzId}</if>
+            <if test="courseId != null"> and p.course_id = #{courseId}</if>
+            <if test="teacherId != null"> and p.teacher_id = #{teacherId}</if>
         </where>
     </select>
-    
-    <select id="selectHomeworkPublishByPublishId" parameterType="Long" resultMap="HomeworkPublishResult">
+
+    <select id="selectHomeworkPublishById" parameterType="Long" resultMap="HomeworkPublishResult">
         <include refid="selectHomeworkPublishVo"/>
-        where publish_id = #{publishId}
+        where p.publish_id = #{publishId}
     </select>
 
     <insert id="insertHomeworkPublish" parameterType="HomeworkPublish" useGeneratedKeys="true" keyProperty="publishId">
-        insert into homework_publish
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="homeworkId != null">homework_id,</if>
-            <if test="clazzId != null">clazz_id,</if>
-            <if test="clazzCourseId != null">clazz_course_id,</if>
-            <if test="courseId != null">course_id,</if>
-            <if test="teacherId != null">teacher_id,</if>
-            <if test="deadline != null">deadline,</if>
-            <if test="createTime != null">create_time,</if>
-         </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="homeworkId != null">#{homeworkId},</if>
-            <if test="clazzId != null">#{clazzId},</if>
-            <if test="clazzCourseId != null">#{clazzCourseId},</if>
-            <if test="courseId != null">#{courseId},</if>
-            <if test="teacherId != null">#{teacherId},</if>
-            <if test="deadline != null">#{deadline},</if>
-            <if test="createTime != null">#{createTime},</if>
-         </trim>
+        insert into homework_publish(homework_id, clazz_id, course_id, teacher_id, deadline, create_time)
+        values(#{homeworkId}, #{clazzId}, #{courseId}, #{teacherId}, #{deadline}, now())
     </insert>
 
     <update id="updateHomeworkPublish" parameterType="HomeworkPublish">
         update homework_publish
-        <trim prefix="SET" suffixOverrides=",">
+        <set>
             <if test="homeworkId != null">homework_id = #{homeworkId},</if>
             <if test="clazzId != null">clazz_id = #{clazzId},</if>
-            <if test="clazzCourseId != null">clazz_course_id = #{clazzCourseId},</if>
             <if test="courseId != null">course_id = #{courseId},</if>
             <if test="teacherId != null">teacher_id = #{teacherId},</if>
             <if test="deadline != null">deadline = #{deadline},</if>
-            <if test="createTime != null">create_time = #{createTime},</if>
-        </trim>
+        </set>
         where publish_id = #{publishId}
     </update>
 
-    <delete id="deleteHomeworkPublishByPublishId" parameterType="Long">
+    <delete id="deleteHomeworkPublishById" parameterType="Long">
         delete from homework_publish where publish_id = #{publishId}
     </delete>
 
-    <delete id="deleteHomeworkPublishByPublishIds" parameterType="String">
-        delete from homework_publish where publish_id in 
-        <foreach item="publishId" collection="array" open="(" separator="," close=")">
-            #{publishId}
+    <delete id="deleteHomeworkPublishByIds" parameterType="long">
+        delete from homework_publish where publish_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
         </foreach>
     </delete>
+
 </mapper>

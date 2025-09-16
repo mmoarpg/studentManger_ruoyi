@@ -2,12 +2,13 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.Homework;
+import com.ruoyi.system.domain.HomeworkPublish;
 
 /**
  * 作业定义Mapper接口
  * 
  * @author ruoyi
- * @date 2025-09-15
+ * @date 2025-09-16
  */
 public interface HomeworkMapper 
 {
@@ -58,4 +59,29 @@ public interface HomeworkMapper
      * @return 结果
      */
     public int deleteHomeworkByHomeworkIds(Long[] homeworkIds);
+
+    /**
+     * 批量删除作业发布
+     * 
+     * @param homeworkIds 需要删除的数据主键集合
+     * @return 结果
+     */
+    public int deleteHomeworkPublishByHomeworkIds(Long[] homeworkIds);
+    
+    /**
+     * 批量新增作业发布
+     * 
+     * @param homeworkPublishList 作业发布列表
+     * @return 结果
+     */
+    public int batchHomeworkPublish(List<HomeworkPublish> homeworkPublishList);
+    
+
+    /**
+     * 通过作业定义主键删除作业发布信息
+     * 
+     * @param homeworkId 作业定义ID
+     * @return 结果
+     */
+    public int deleteHomeworkPublishByHomeworkId(Long homeworkId);
 }
